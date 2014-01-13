@@ -54,10 +54,16 @@ class SurfaceForm(var name : String) extends Serializable
     // all surface forms have a total count. However, it is reasonable that long sf matches are usually
     // annotated, therefore this 1.0
 
-    if (totalCount == -1)
+    if (totalCount == -1){
       1.0
-    else
+    }
+    else{
+      println(this.name)
+      println("\t annotated count:"+annotatedCount)
+      println("\t total count:"+totalCount)
+      println("\tanotation prob:" + (annotatedCount / totalCount.toDouble))
       annotatedCount / totalCount.toDouble
+    }
   }
 
   override def toString = "SurfaceForm["+name+"]"
