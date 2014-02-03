@@ -94,6 +94,7 @@ class RelevanceCentroid(val contextStore:ContextStore) extends Relevance {
 
     val contextCounts = getContextCounts(listOfResourceOcurrence)
     val canonicalVectors = transformCountsToVectors(contextCounts)
+    getDistanceToCentroid(canonicalVectors)
 
     return Map[DBpediaResourceOccurrence,Double]()
 

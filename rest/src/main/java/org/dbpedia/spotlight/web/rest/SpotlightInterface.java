@@ -121,6 +121,7 @@ public class SpotlightInterface {
     }
 
     public Map<DBpediaResourceOccurrence,Double> getRelevances(List<DBpediaResourceOccurrence> listOfResourceOcurrence){
+        System.out.println("about to call get relevance from the singleton");
         Server.getRelevance().calculateRelevance(listOfResourceOcurrence);
         Map<DBpediaResourceOccurrence, Double> map = new HashMap<DBpediaResourceOccurrence, Double>();
         return map;
@@ -168,6 +169,7 @@ public class SpotlightInterface {
         FilterElement filter = new OccsFilter(confidence, support, ontologyTypesString, sparqlQuery, blacklist, coreferenceResolution, Server.getSimilarityThresholds(), Server.getSparqlExecute());
         occList = filter.accept(new FilterOccsImpl() ,occList);
 
+        System.out.println("calling.. relevances!");
         getRelevances(occList);
 
 
