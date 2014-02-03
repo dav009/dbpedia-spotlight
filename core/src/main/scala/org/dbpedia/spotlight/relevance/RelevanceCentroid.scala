@@ -78,11 +78,9 @@ class RelevanceCentroid(val contextStore:ContextStore) extends Relevance {
   }
 
   def getDistanceToCentroid(canonicalVectors:Map[DBpediaResource,ListBuffer[Double]]){
-      val vectorsToCluster =new ArrayBuffer[ Point](canonicalVectors.size)
-      var index = 0
+      var vectorsToCluster =new ArrayBuffer[ Point]()
       for((dbpdiaResource, vector) <- canonicalVectors){
-        vectorsToCluster.add(index,Point(ArrayBuffer(vector: _*)))
-        index = index + 1
+        vectorsToCluster += Point(ArrayBuffer[Double](vector: _*))
       }
       val kmeans=  new Kmeans(vectorsToCluster, EuclideanDistance, 0.0001, 100, false)
       val (dispersion, centroids) = kmeans.run(1,300)
