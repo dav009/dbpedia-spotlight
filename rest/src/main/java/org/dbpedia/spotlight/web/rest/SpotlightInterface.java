@@ -28,11 +28,14 @@ import org.dbpedia.spotlight.filter.visitor.FilterElement;
 import org.dbpedia.spotlight.filter.visitor.FilterOccsImpl;
 import org.dbpedia.spotlight.filter.visitor.OccsFilter;
 import org.dbpedia.spotlight.model.*;
+import org.dbpedia.spotlight.relevance.RelevanceCentroid;
 import org.dbpedia.spotlight.spot.Spotter;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller that interfaces between the REST API and the DBpedia Spotlight core.
@@ -117,6 +120,12 @@ public class SpotlightInterface {
         return spots;
     }
 
+    public Map<DBpediaResourceOccurrence,Double> getRelevances(List<DBpediaResourceOccurrence> listOfResourceOcurrence){
+        Server.getRelevance().calculateRelevance(listOfResourceOcurrence);
+        Map<DBpediaResourceOccurrence, Double> map = new HashMap<DBpediaResourceOccurrence, Double>();
+        return map;
+    }
+
     /**
      * Retrieves representation of an instance of org.dbpedia.spotlight.web.Annotation
      * @return an instance of java.lang.String
@@ -159,6 +168,7 @@ public class SpotlightInterface {
         FilterElement filter = new OccsFilter(confidence, support, ontologyTypesString, sparqlQuery, blacklist, coreferenceResolution, Server.getSimilarityThresholds(), Server.getSparqlExecute());
         occList = filter.accept(new FilterOccsImpl() ,occList);
 
+        getRelevances(occList);
 
 
         if (LOG.isDebugEnabled()) {

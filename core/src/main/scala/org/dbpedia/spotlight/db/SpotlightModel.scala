@@ -19,12 +19,13 @@ import opennlp.tools.chunker.ChunkerModel
 import opennlp.tools.namefind.TokenNameFinderModel
 import stem.SnowballStemmer
 import tokenize.{OpenNLPTokenizer, LanguageIndependentTokenizer}
+import org.dbpedia.spotlight.relevance.{RelevanceCentroid, Relevance}
 
 
 class SpotlightModel(val tokenizer: TextTokenizer,
                      val spotters: java.util.Map[SpotterPolicy, Spotter],
                      val disambiguators: java.util.Map[DisambiguationPolicy, ParagraphDisambiguatorJ],
-                     val properties: Properties)
+                     val properties: Properties, val relevance:Relevance)
 
 object SpotlightModel {
 
@@ -153,6 +154,7 @@ object SpotlightModel {
 
     val spotters: java.util.Map[SpotterPolicy, Spotter] = Map(SpotterPolicy.SpotXmlParser -> new SpotXmlParser(), SpotterPolicy.Default -> spotter).asJava
     val disambiguators: java.util.Map[DisambiguationPolicy, ParagraphDisambiguatorJ] = Map(DisambiguationPolicy.Default -> disambiguator).asJava
-    new SpotlightModel(tokenizer, spotters, disambiguators, properties)
+    val relevance:RelevanceCentroid = new RelevanceCentroid(contextStore)
+    new SpotlightModel(tokenizer, spotters, disambiguators, properties, relevance)
   }
 }
