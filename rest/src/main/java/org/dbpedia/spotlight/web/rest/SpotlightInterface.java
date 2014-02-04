@@ -28,7 +28,7 @@ import org.dbpedia.spotlight.filter.visitor.FilterElement;
 import org.dbpedia.spotlight.filter.visitor.FilterOccsImpl;
 import org.dbpedia.spotlight.filter.visitor.OccsFilter;
 import org.dbpedia.spotlight.model.*;
-import org.dbpedia.spotlight.relevance.RelevanceCentroid;
+import org.dbpedia.spotlight.relevance.RelevanceDistanceToTextContext;
 import org.dbpedia.spotlight.spot.Spotter;
 
 import java.net.URLEncoder;
@@ -122,7 +122,13 @@ public class SpotlightInterface {
 
     public Map<DBpediaResourceOccurrence,Double> getRelevances(List<DBpediaResourceOccurrence> listOfResourceOcurrence){
         System.out.println("about to call get relevance from the singleton");
-        Server.getRelevance().calculateRelevance(listOfResourceOcurrence);
+        Text allText = listOfResourceOcurrence.get(0).context();
+        if(Server.getTokenizer() != null){
+
+            Server.getTokenizer().tokenizeMaybe(allText);
+        }
+
+        Server.getRelevance().calculateRelevance(listOfResourceOcurrence, allText);
         Map<DBpediaResourceOccurrence, Double> map = new HashMap<DBpediaResourceOccurrence, Double>();
         return map;
     }
