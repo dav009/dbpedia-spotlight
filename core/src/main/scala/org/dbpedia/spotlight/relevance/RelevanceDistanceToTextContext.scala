@@ -84,7 +84,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
            counts = counts + 1
        }
       if (counts > 0)
-        icfMap += (tokenType -> (totalDocs/counts) )
+        icfMap += (tokenType -> totalDocs/counts )
       else
         icfMap += (tokenType -> 0.0)
 
@@ -99,7 +99,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     for (tokenType<-allTokens){
       val icfValue = icfMap.get(tokenType).get
       topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
-        scores(dbpediaTopic) = scores.getOrElse(dbpediaTopic, 0.0) + (contextVector(tokenType)*topicVectors(dbpediaTopic).getOrElse(tokenType,0.0)* icfValue)
+        scores(dbpediaTopic) = scores.getOrElse(dbpediaTopic, 0.0) + (topicVectors(dbpediaTopic).getOrElse(tokenType,0.0)* icfValue)
         if (topicVectors(dbpediaTopic).contains(tokenType)){
           numberOfTokensInCommon(dbpediaTopic) = numberOfTokensInCommon.getOrElse(dbpediaTopic, 0.0) + 1.0
         }
@@ -107,17 +107,21 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     }
 
     val sum_of_priors:Double = topicVectors.keySet.map(_.prior).sum
+    val firstScore = mutable.HashMap[DBpediaResource, Double]()
 
     topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
       if (numberOfTokensInCommon(dbpediaTopic)>0)
-        scores(dbpediaTopic) = (scores(dbpediaTopic) / topicVectors(dbpediaTopic).size)
+        firstScore(dbpediaTopic) = scores(dbpediaTopic)
+        scores(dbpediaTopic) = scores(dbpediaTopic) / numberOfTokensInCommon(dbpediaTopic)
       else
         scores(dbpediaTopic) = 0.0
+        firstScore(dbpediaTopic) = scores(dbpediaTopic)
 
       println(dbpediaTopic.uri)
       println("\t prior: "+dbpediaTopic.prior)
       println("\t log prior: "+ breeze.numerics.log(dbpediaTopic.prior))
       println("\t numberOfCommonTokens"+ numberOfTokensInCommon(dbpediaTopic))
+      println("\t first score: "+ firstScore(dbpediaTopic))
       println("\t original score: "+ scores(dbpediaTopic))
       scores(dbpediaTopic) = scores(dbpediaTopic) / (dbpediaTopic.prior / sum_of_priors)
       println("\t final score: "+ scores(dbpediaTopic))
