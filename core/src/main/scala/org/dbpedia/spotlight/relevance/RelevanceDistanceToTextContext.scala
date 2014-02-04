@@ -94,7 +94,14 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       else
         scores(dbpediaTopic) = 0.0
 
-      scores(dbpediaTopic) = scores(dbpediaTopic) / dbpediaTopic.prior
+      println(dbpediaTopic.uri)
+      println("\t prior: "+dbpediaTopic.prior)
+      println("\t log prior: "+ breeze.numerics.log(dbpediaTopic.prior))
+      println("\t numberOfCommonTokens"+ numberOfTokensInCommon(dbpediaTopic))
+      println("\t original score: "+ scores(dbpediaTopic))
+      scores(dbpediaTopic) = scores(dbpediaTopic) / breeze.numerics.log(dbpediaTopic.prior)
+      println("\t final score: "+ scores(dbpediaTopic))
+
     }
 
     return scores.toMap
