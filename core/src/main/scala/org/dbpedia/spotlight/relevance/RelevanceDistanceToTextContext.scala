@@ -83,10 +83,13 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       val icfValue = icfMap.get(tokenType).get
       topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
         scores(dbpediaTopic) = scores.getOrElse(dbpediaTopic, 0.0) + (topicVectors(dbpediaTopic).getOrElse(tokenType,0.0)* icfValue)
-        numberOfTokensInCommon(dbpediaTopic) = numberOfTokensInCommon.getOrElse(dbpediaTopic, 0.0) + 1.0
-      }
+        if (topicVectors(dbpediaTopic).contains(tokenType)){
+          numberOfTokensInCommon(dbpediaTopic) = numberOfTokensInCommon.getOrElse(dbpediaTopic, 0.0) + 1.0
+        }
+       }
     }
 
+    val sum_of_priors:Double = topicVectors.keySet.toSeq.sum(_.prior)
 
     topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
       if (numberOfTokensInCommon(dbpediaTopic)>0)
@@ -99,7 +102,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       println("\t log prior: "+ breeze.numerics.log(dbpediaTopic.prior))
       println("\t numberOfCommonTokens"+ numberOfTokensInCommon(dbpediaTopic))
       println("\t original score: "+ scores(dbpediaTopic))
-      scores(dbpediaTopic) = scores(dbpediaTopic) / breeze.numerics.log(dbpediaTopic.prior)
+      scores(dbpediaTopic) = scores(dbpediaTopic) / (dbpediaTopic.prior / sum_of_priors.toDouble)
       println("\t final score: "+ scores(dbpediaTopic))
 
     }
