@@ -89,7 +89,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
        }
     }
 
-    val sum_of_priors:Double = topicVectors.keySet.toSeq.sum(_.prior)
+    val sum_of_priors:Double = topicVectors.keySet.map(_.prior).sum
 
     topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
       if (numberOfTokensInCommon(dbpediaTopic)>0)
@@ -102,7 +102,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       println("\t log prior: "+ breeze.numerics.log(dbpediaTopic.prior))
       println("\t numberOfCommonTokens"+ numberOfTokensInCommon(dbpediaTopic))
       println("\t original score: "+ scores(dbpediaTopic))
-      scores(dbpediaTopic) = scores(dbpediaTopic) / (dbpediaTopic.prior / sum_of_priors.toDouble)
+      scores(dbpediaTopic) = scores(dbpediaTopic) / (dbpediaTopic.prior / sum_of_priors)
       println("\t final score: "+ scores(dbpediaTopic))
 
     }
