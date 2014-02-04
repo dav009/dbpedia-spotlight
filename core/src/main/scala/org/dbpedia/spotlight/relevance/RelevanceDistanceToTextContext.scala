@@ -45,7 +45,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     var listOfVectors = Map[DBpediaResource,Map[TokenType,Int]]()
     for ( (dbpediaResource,currentContextCounts)<- listOfCounts){
       //sort by counts
-      val maxCountSubContext = currentContextCounts.toSeq.sortBy(_._2).reverse.subList(0,300)
+      val maxCountSubContext = currentContextCounts.toSeq.sortBy(_._2).reverse.slice(0,100)
       // get full dimesions
       var newVector =   Map[TokenType, Int]()
       for ( (token, counts) <-maxCountSubContext){
