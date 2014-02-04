@@ -39,6 +39,23 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
   }
 
+
+  def pruneVectors(listOfCounts:Map[DBpediaResource,Map[TokenType,Int]]): Map[DBpediaResource,Map[TokenType,Double]]={
+
+    var listOfVectors = Map[DBpediaResource,Map[TokenType,Double]]()
+    for ( (dbpediaResource,currentContextCounts)<- listOfCounts){
+      //sort by counts
+      val maxCountSubContext = currentContextCounts.toSeq.sortBy(_._2).reverse.subList(0,300)
+      // get full dimesions
+      var newVector =   Map[TokenType, Int]()
+      for ( (token, counts) <-maxCountSubContext){
+        newVector += (token -> counts)
+      }
+      listOfVectors += (dbpediaResource ->newVector)
+    }
+    return listOfVectors
+  }
+
   /* given a list of dbpedia resoruce vectors
     - normalizes each vector
     - reduce the number of dimensions to 100
@@ -93,7 +110,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
     topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
       if (numberOfTokensInCommon(dbpediaTopic)>0)
-        scores(dbpediaTopic) = (scores(dbpediaTopic) / numberOfTokensInCommon(dbpediaTopic))
+        scores(dbpediaTopic) = (scores(dbpediaTopic) / topicVectors(dbpediaTopic).size)
       else
         scores(dbpediaTopic) = 0.0
 
@@ -117,7 +134,8 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     }
     val allTokens:List[Token] = allText.featureValue("tokens").get
     val contextVector:Map[TokenType,Double] =getAllTextContextVector(allTokens)
-    val contextCounts = getContextCounts(contextStore,setOfDbpediaTopics.toList)
+    val originalCounts = getContextCounts(contextStore,setOfDbpediaTopics.toList)
+    val contextCounts = pruneVectors(originalCounts)
     val normalizedVectors = transformCountsToVectors(contextVector, contextCounts)
     val icfMap = icf(contextVector, normalizedVectors)
 
