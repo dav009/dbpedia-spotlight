@@ -40,9 +40,9 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
   }
 
 
-  def pruneVectors(listOfCounts:Map[DBpediaResource,Map[TokenType,Int]]): Map[DBpediaResource,Map[TokenType,Double]]={
+  def pruneVectors(listOfCounts:Map[DBpediaResource,Map[TokenType,Int]]): Map[DBpediaResource,Map[TokenType,Int]]={
 
-    var listOfVectors = Map[DBpediaResource,Map[TokenType,Double]]()
+    var listOfVectors = Map[DBpediaResource,Map[TokenType,Int]]()
     for ( (dbpediaResource,currentContextCounts)<- listOfCounts){
       //sort by counts
       val maxCountSubContext = currentContextCounts.toSeq.sortBy(_._2).reverse.subList(0,300)
