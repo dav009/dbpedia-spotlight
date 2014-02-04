@@ -77,17 +77,24 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
   def getRelevances(topicVectors:Map[DBpediaResource,Map[TokenType,Double]], contextVector:Map[TokenType,Double], icfMap:Map[TokenType, Double]):Map[DBpediaResource, Double]={
     val scores = mutable.HashMap[DBpediaResource, Double]()
+    val numberOfTokensInCommon = mutable.HashMap[DBpediaResource, Double]()
     val allTokens = contextVector.keySet
     for (tokenType<-allTokens){
       val icfValue = icfMap.get(tokenType).get
       topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
         scores(dbpediaTopic) = scores.getOrElse(dbpediaTopic, 0.0) + (topicVectors(dbpediaTopic).getOrElse(tokenType,0.0)* icfValue)
+        numberOfTokensInCommon(dbpediaTopic) = numberOfTokensInCommon.getOrElse(dbpediaTopic, 0.0) + 1.0
       }
     }
 
 
     topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
-      scores(dbpediaTopic) = scores(dbpediaTopic) / (topicVectors(dbpediaTopic).size.toDouble)
+      if (numberOfTokensInCommon(dbpediaTopic)>0)
+        scores(dbpediaTopic) = (scores(dbpediaTopic) / numberOfTokensInCommon(dbpediaTopic))
+      else
+        scores(dbpediaTopic) = 0.0
+
+      scores(dbpediaTopic) = scores(dbpediaTopic) / dbpediaTopic.prior
     }
 
     return scores.toMap
