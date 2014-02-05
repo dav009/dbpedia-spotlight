@@ -129,8 +129,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       firstScore(dbpediaTopic) = firstScore(dbpediaTopic) + boostByCounts
 
     //new crap
-      firstScore(dbpediaTopic) = (firstScore(dbpediaTopic) * numberOfTokensInCommon(dbpediaTopic)) /  topicVectors(dbpediaTopic).size
-
+      firstScore(dbpediaTopic) = (firstScore(dbpediaTopic) * numberOfTokensInCommon(dbpediaTopic))
 
 
       println(dbpediaTopic.uri)
