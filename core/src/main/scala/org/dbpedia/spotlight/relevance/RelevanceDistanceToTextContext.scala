@@ -137,6 +137,9 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
         maxValue = firstScore(dbpediaTopic)
     }
 
+    println("minValue:"+minValue)
+    println("maxValue"+maxValue)
+
     //minmaxNorm
       firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
 
