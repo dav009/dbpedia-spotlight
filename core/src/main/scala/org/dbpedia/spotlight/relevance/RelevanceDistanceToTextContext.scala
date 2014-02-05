@@ -128,6 +128,9 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       val boostByCounts =  (1 -firstScore(dbpediaTopic))*(topicFrequencyInText(dbpediaTopic)/sumOfTopicFrequencys.toDouble)
       firstScore(dbpediaTopic) = firstScore(dbpediaTopic) + boostByCounts
 
+    //new crap
+      firstScore(dbpediaTopic) = (firstScore(dbpediaTopic) * numberOfTokensInCommon(dbpediaTopic)) /  topicVectors(dbpediaTopic).size
+
 
 
       println(dbpediaTopic.uri)
@@ -154,8 +157,10 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       if (firstScore(dbpediaTopic)>maxValue)
         maxValue = firstScore(dbpediaTopic)
     }
+
+    val topScore = (maxValue + 1.0)/2.0
     firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
-      firstScore(dbpediaTopic) = ((firstScore(dbpediaTopic) - minValue) / (maxValue-minValue)) * (0.95-0.1) + 0.1
+      firstScore(dbpediaTopic) = ((firstScore(dbpediaTopic) - minValue) / (top_score-minValue)) * (top_score-0.1) + 0.1
     }
 
     println("minValue:"+minValue)
