@@ -122,7 +122,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
         firstScore(dbpediaTopic) = scores(dbpediaTopic)
       }
 
-    val sumOfTopicFrequencys:Int= topicFrequencyInText.values.map(_).sum
+    val sumOfTopicFrequencys:Int= topicFrequencyInText.values.map(_.toInt).sum
     firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
 
       val boostByCounts =  (1 -firstScore(dbpediaTopic))*(topicFrequencyInText(dbpediaTopic)/sumOfTopicFrequencys.toDouble)
@@ -147,10 +147,11 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
   def calculateRelevance(listOfResourceOcurrence:java.util.List[DBpediaResourceOccurrence], allText:Text):Map[DBpediaResource,Double]={
     val setOfDbpediaTopics=mutable.Set[DBpediaResourceOccurrence]()
-    var topicFrequencyInText = Map[DBpediaResource, Int]()
+    var topicFrequencyInText:Map[DBpediaResource, Int] = Map[DBpediaResource, Int]()
     for (resource<- listOfResourceOcurrence.asScala){
       setOfDbpediaTopics.add(resource)
-      topicFrequencyInText += (resource.resource -> topicFrequencyInText.getOrElse(resource.resource,0.0) +1  )
+      val topicCount:Int = topicFrequencyInText.getOrElse(resource.resource,0) +1
+      topicFrequencyInText += (resource.resource -> topicCount   )
     }
 
 
