@@ -147,7 +147,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
   def calculateRelevance(listOfResourceOcurrence:java.util.List[DBpediaResourceOccurrence], allText:Text):Map[DBpediaResource,Double]={
     val setOfDbpediaTopics=mutable.Set[DBpediaResourceOccurrence]()
-    val topicFrequencyInText = Map[DBpediaResource, Int]()
+    var topicFrequencyInText = Map[DBpediaResource, Int]()
     for (resource<- listOfResourceOcurrence.asScala){
       setOfDbpediaTopics.add(resource)
       topicFrequencyInText += (resource.resource -> topicFrequencyInText.getOrElse(resource.resource,0.0) +1  )
