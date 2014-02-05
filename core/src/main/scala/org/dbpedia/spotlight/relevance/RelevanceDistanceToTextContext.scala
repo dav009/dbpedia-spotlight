@@ -123,28 +123,12 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       }
 
     val sumOfTopicFrequencys:Int= topicFrequencyInText.values.map(_.toInt).sum
-    var maxValue = -100.0
-    var minValue = 10000000.0
     firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
 
       val boostByCounts =  (1 -firstScore(dbpediaTopic))*(topicFrequencyInText(dbpediaTopic)/sumOfTopicFrequencys.toDouble)
       firstScore(dbpediaTopic) = firstScore(dbpediaTopic) + boostByCounts
 
-      if (firstScore(dbpediaTopic)<minValue)
-        minValue= firstScore(dbpediaTopic)
-
-      if (firstScore(dbpediaTopic)>maxValue)
-        maxValue = firstScore(dbpediaTopic)
     }
-
-    println("minValue:"+minValue)
-    println("maxValue"+maxValue)
-
-    //minmaxNorm
-      firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
-
-        firstScore(dbpediaTopic) = ((firstScore(dbpediaTopic) - minValue) / (maxValue-minValue)) * (1.0-0.1) + 0.1
-      }
 
       println(dbpediaTopic.uri)
       println("\t prior: "+dbpediaTopic.prior)
@@ -157,6 +141,26 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
     }
 
+
+    //minmaxNorm
+    var maxValue = -100.0
+    var minValue = 10000000.0
+
+
+    firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
+      if (firstScore(dbpediaTopic)<minValue)
+        minValue= firstScore(dbpediaTopic)
+
+      if (firstScore(dbpediaTopic)>maxValue)
+        maxValue = firstScore(dbpediaTopic)
+    }
+    firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
+      firstScore(dbpediaTopic) = ((firstScore(dbpediaTopic) - minValue) / (maxValue-minValue)) * (1.0-0.1) + 0.1
+    }
+
+    println("minValue:"+minValue)
+    println("maxValue"+maxValue)
+    println("FINAL SCORES::::::::")
     val orderedScores = firstScore.toSeq.sortBy(_._2)
     for( (dbpediaTopic, score)<-orderedScores ){
         println(dbpediaTopic.uri)
