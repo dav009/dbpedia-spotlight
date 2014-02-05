@@ -14,6 +14,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
 
 
+
   def normalizeVector(vector:Map[TokenType,Int]):Map[TokenType,Double]={
      val totalSumOfTokens = vector.values.sum
      var normalizedVector = Map[TokenType,Double]()
@@ -99,7 +100,9 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     for (tokenType<-allTokens){
       val icfValue = icfMap.get(tokenType).get
       topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
-        scores(dbpediaTopic) = scores.getOrElse(dbpediaTopic, 0.0) + topicVectors(dbpediaTopic).getOrElse(tokenType,0.0)
+        val topicScore =  topicVectors(dbpediaTopic).getOrElse(tokenType,0.0)
+        val boostScoreContext =  topicScore * contextVector.getOrElse(tokenType,0.0)
+        scores(dbpediaTopic) = scores.getOrElse(dbpediaTopic, 0.0) + topicScore + boostScoreContext
         if (topicVectors(dbpediaTopic).contains(tokenType)){
           numberOfTokensInCommon(dbpediaTopic) = numberOfTokensInCommon.getOrElse(dbpediaTopic, 0.0) + 1.0
         }
@@ -112,10 +115,12 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
       if (numberOfTokensInCommon(dbpediaTopic)>0){
         firstScore(dbpediaTopic) = scores(dbpediaTopic)
-        scores(dbpediaTopic) = scores(dbpediaTopic) / numberOfTokensInCommon(dbpediaTopic)}
+        scores(dbpediaTopic) = scores(dbpediaTopic) / numberOfTokensInCommon(dbpediaTopic)
+      }
       else{
         scores(dbpediaTopic) = 0.0
-        firstScore(dbpediaTopic) = scores(dbpediaTopic)}
+        firstScore(dbpediaTopic) = scores(dbpediaTopic)
+      }
 
       println(dbpediaTopic.uri)
       println("\t prior: "+dbpediaTopic.prior)

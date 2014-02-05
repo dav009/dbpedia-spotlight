@@ -16,12 +16,21 @@ trait Relevance {
   def getAllTextContextVector(textContext:List[Token]):Map[TokenType,Double]={
     val counts:Map[TokenType, Int]= Map[TokenType, Int]()
     val tokenCounts:Map[TokenType,Int] = textContext.groupBy(_.tokenType).mapValues(_.size)
+
+    val maxCountSubContext = tokenCounts.toSeq.sortBy(_._2).reverse.slice(0,100)
+
+    var prunedVector =   Map[TokenType, Int]()
+    for ( (token, counts) <-maxCountSubContext){
+      prunedVector += (token -> counts)
+    }
+
     var normalizedTokenVector:Map[TokenType,Double]= Map[TokenType,Double]()
-    val totalCounts = tokenCounts.values.toList.sum
+    val totalCounts = prunedVector.values.toList.sum
     for (tokenType<- tokenCounts.keys){
-      val normalizedValue = tokenCounts.get(tokenType).get / totalCounts.toDouble
+      val normalizedValue = prunedVector.get(tokenType).get / totalCounts.toDouble
       normalizedTokenVector += (tokenType -> normalizedValue)
     }
+
    return normalizedTokenVector
   }
 
