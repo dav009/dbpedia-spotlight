@@ -15,7 +15,14 @@ trait Relevance {
   //into a vector
   def getAllTextContextVector(textContext:List[Token]):Map[TokenType,Double]={
     val counts:Map[TokenType, Int]= Map[TokenType, Int]()
-    val tokenCounts:Map[TokenType,Int] = textContext.groupBy(_.tokenType).mapValues(_.size)
+    var tokenCounts:Map[TokenType,Int] = textContext.groupBy(_.tokenType).mapValues(_.size)
+
+    if  (tokenCounts.contains(TokenType.UNKNOWN))
+      tokenCounts = tokenCounts - TokenType.UNKNOWN
+
+    if  (tokenCounts.contains(TokenType.STOPWORD))
+      tokenCounts = tokenCounts - TokenType.STOPWORD
+
 
     val maxCountSubContext = tokenCounts.toSeq.sortBy(_._2).reverse.slice(0,100)
 
