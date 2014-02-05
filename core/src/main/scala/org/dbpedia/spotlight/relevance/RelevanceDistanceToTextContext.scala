@@ -93,7 +93,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     return icfMap
   }
 
-  def getRelevances(topicVectors:Map[DBpediaResource,Map[TokenType,Double]], contextVector:Map[TokenType,Double], icfMap:Map[TokenType, Double]):Map[DBpediaResource, Double]={
+  def getRelevances(topicVectors:Map[DBpediaResource,Map[TokenType,Double]], contextVector:Map[TokenType,Double], icfMap:Map[TokenType, Double], topicFrequencyInText:Map[DBpediaResource, Int]):Map[DBpediaResource, Double]={
     val scores = mutable.HashMap[DBpediaResource, Double]()
     val numberOfTokensInCommon = mutable.HashMap[DBpediaResource, Double]()
     val allTokens = contextVector.keySet
@@ -122,6 +122,15 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
         firstScore(dbpediaTopic) = scores(dbpediaTopic)
       }
 
+    val sumOfTopicFrequencys:Int= topicFrequencyInText.values.map(_).sum
+    firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
+
+      val boostByCounts =  (1 -firstScore(dbpediaTopic))*(topicFrequencyInText(dbpediaTopic)/sumOfTopicFrequencys.toDouble)
+      firstScore(dbpediaTopic) = firstScore(dbpediaTopic) + boostByCounts
+
+
+    }
+
       println(dbpediaTopic.uri)
       println("\t prior: "+dbpediaTopic.prior)
       println("\t log prior: "+ breeze.numerics.log(dbpediaTopic.prior))
@@ -138,9 +147,13 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
   def calculateRelevance(listOfResourceOcurrence:java.util.List[DBpediaResourceOccurrence], allText:Text):Map[DBpediaResource,Double]={
     val setOfDbpediaTopics=mutable.Set[DBpediaResourceOccurrence]()
+    val topicFrequencyInText = Map[DBpediaResource, Int]()
     for (resource<- listOfResourceOcurrence.asScala){
       setOfDbpediaTopics.add(resource)
+      topicFrequencyInText += (resource.resource -> topicFrequencyInText.getOrElse(resource.resource,0.0) +1  )
     }
+
+
     val allTokens:List[Token] = allText.featureValue("tokens").get
     val contextVector:Map[TokenType,Double] =getAllTextContextVector(allTokens)
     val originalCounts = getContextCounts(contextStore,setOfDbpediaTopics.toList)
@@ -148,7 +161,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     val normalizedVectors = transformCountsToVectors(contextVector, contextCounts)
     val icfMap = icf(contextVector, normalizedVectors)
 
-    val scores = getRelevances(normalizedVectors, contextVector, icfMap)
+    val scores = getRelevances(normalizedVectors, contextVector, icfMap,topicFrequencyInText)
     println("relevance scores")
     for((dbpediaURI, score)<- scores){
       println(dbpediaURI.uri+"-"+score)

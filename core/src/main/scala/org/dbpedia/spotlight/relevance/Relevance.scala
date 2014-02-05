@@ -33,7 +33,7 @@ trait Relevance {
 
     var normalizedTokenVector:Map[TokenType,Double]= Map[TokenType,Double]()
     val totalCounts = prunedVector.values.toList.sum
-    for (tokenType<- tokenCounts.keys){
+    for (tokenType<- prunedVector.keys){
       val normalizedValue = prunedVector.get(tokenType).get / totalCounts.toDouble
       normalizedTokenVector += (tokenType -> normalizedValue)
       println(tokenType.toString)
