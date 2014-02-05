@@ -121,14 +121,14 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
         scores(dbpediaTopic) = 0.0
         firstScore(dbpediaTopic) = scores(dbpediaTopic)
       }
-
+    }
     val sumOfTopicFrequencys:Int= topicFrequencyInText.values.map(_.toInt).sum
     firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
 
       val boostByCounts =  (1 -firstScore(dbpediaTopic))*(topicFrequencyInText(dbpediaTopic)/sumOfTopicFrequencys.toDouble)
       firstScore(dbpediaTopic) = firstScore(dbpediaTopic) + boostByCounts
 
-    }
+
 
       println(dbpediaTopic.uri)
       println("\t prior: "+dbpediaTopic.prior)
