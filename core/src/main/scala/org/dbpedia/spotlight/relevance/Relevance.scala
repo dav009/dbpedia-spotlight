@@ -29,6 +29,8 @@ trait Relevance {
     for (tokenType<- tokenCounts.keys){
       val normalizedValue = prunedVector.get(tokenType).get / totalCounts.toDouble
       normalizedTokenVector += (tokenType -> normalizedValue)
+      println(tokenType.toString)
+      println("\t"+normalizedValue)
     }
 
    return normalizedTokenVector
