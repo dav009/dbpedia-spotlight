@@ -98,7 +98,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     val numberOfTokensInCommon = mutable.HashMap[DBpediaResource, Double]()
     val allTokens = contextVector.keySet
 
-    val matchedTokensToMatchedTopics = mutable.HashMap[TokenType,DBpediaResource]()
+    val matchedTokensToMatchedTopics = mutable.HashMap[TokenType, mutable.ListBuffer[DBpediaResource]]()
 
     for (tokenType<-allTokens){
       val icfValue = icfMap.get(tokenType).get
