@@ -188,7 +188,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
 
 
-    return scores.toMap
+    return firstScore.toMap
   }
 
   def calculateRelevance(listOfResourceOcurrence:java.util.List[DBpediaResourceOccurrence], allText:Text):java.util.Map[DBpediaResource,java.lang.Double]={
