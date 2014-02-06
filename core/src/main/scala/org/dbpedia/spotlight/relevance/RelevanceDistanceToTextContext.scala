@@ -119,7 +119,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     val firstScore = mutable.HashMap[DBpediaResource, Double]()
 
     topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
-      if (numberOfTokensInCommon.getOrElse(dbpediaTopic,0)>0){
+      if (numberOfTokensInCommon.contains(dbpediaTopic)  && (numberOfTokensInCommon(dbpediaTopic) > 0)){
         firstScore(dbpediaTopic) = scores(dbpediaTopic)
         scores(dbpediaTopic) = scores(dbpediaTopic) / numberOfTokensInCommon(dbpediaTopic)
       }
@@ -137,16 +137,6 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     //new crap
       val maxNumberOfCommonTokens = numberOfTokensInCommon.values.max
       //firstScore(dbpediaTopic) = (firstScore(dbpediaTopic) * numberOfTokensInCommon(dbpediaTopic)) / maxNumberOfCommonTokens
-
-
-      println(dbpediaTopic.uri)
-      println("\t prior: "+dbpediaTopic.prior)
-      println("\t log prior: "+ breeze.numerics.log(dbpediaTopic.prior))
-      println("\t numberOfCommonTokens"+ numberOfTokensInCommon(dbpediaTopic))
-      println("\t first score: "+ firstScore(dbpediaTopic))
-      println("\t original score: "+ scores(dbpediaTopic))
-      scores(dbpediaTopic) = scores(dbpediaTopic) / (dbpediaTopic.prior / sum_of_priors)
-      println("\t final score: "+ scores(dbpediaTopic))
 
     }
 

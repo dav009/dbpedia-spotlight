@@ -47,16 +47,6 @@ class OpenNLPSpotter(
       case Some(c) => {
         val tags = sentence.map(_.featureValue[String]("pos").get).toArray
         this.synchronized {
-          println("--------------------------")
-          println("chunking for spotter......")
-          for(span<-c.chunkAsSpans(tokens,tags)){
-            var strChunked:String =""
-            for (index<-span.getStart until span.getEnd){
-              strChunked = strChunked +" "+ tokens(index)
-            }
-            println(strChunked+"--"+span.getType)
-          }
-          println("-----------------------------")
           spans ++= c.chunkAsSpans(tokens, tags).filter(chunkSpan => phraseTags.contains(chunkSpan.getType))
         }
       }

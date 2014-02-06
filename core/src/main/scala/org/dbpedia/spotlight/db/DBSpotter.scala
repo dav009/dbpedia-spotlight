@@ -111,10 +111,10 @@ abstract class DBSpotter(
 
   protected def surfaceFormMatch(spot: String): Boolean = {
     if (spotFeatureWeightVector.isDefined){
-      println("spotting score for(0.50):"+spot+"-------"+spotScore(spot))
+      //println("spotting score for(0.50):"+spot+"-------"+spotScore(spot))
       spotScore(spot) >= 0.5}
     else{
-      println("spotting score for(0.25):"+spot+"-------"+spotScore(spot))
+      //println("spotting score for(0.25):"+spot+"-------"+spotScore(spot))
       spotScore(spot) >= 0.25}
   }
 

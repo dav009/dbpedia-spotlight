@@ -58,10 +58,6 @@ class SurfaceForm(var name : String) extends Serializable
       1.0
     }
     else{
-      println(this.name)
-      println("\t annotated count:"+annotatedCount)
-      println("\t total count:"+totalCount)
-      println("\tanotation prob:" + (annotatedCount / totalCount.toDouble))
       annotatedCount / totalCount.toDouble
     }
   }
