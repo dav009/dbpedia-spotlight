@@ -136,7 +136,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
     //new crap
       val maxNumberOfCommonTokens = numberOfTokensInCommon.values.max
-      firstScore(dbpediaTopic) = (firstScore(dbpediaTopic) * numberOfTokensInCommon(dbpediaTopic)) / maxNumberOfCommonTokens
+      //firstScore(dbpediaTopic) = (firstScore(dbpediaTopic) * numberOfTokensInCommon(dbpediaTopic)) / maxNumberOfCommonTokens
 
 
       println(dbpediaTopic.uri)
