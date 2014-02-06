@@ -97,6 +97,9 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     val scores = mutable.HashMap[DBpediaResource, Double]()
     val numberOfTokensInCommon = mutable.HashMap[DBpediaResource, Double]()
     val allTokens = contextVector.keySet
+
+    val matchedTokensToMatchedTopics = mutable.HashMap[TokenType,DBpediaResource]()
+
     for (tokenType<-allTokens){
       val icfValue = icfMap.get(tokenType).get
       topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
@@ -105,6 +108,9 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
         scores(dbpediaTopic) =  scores.getOrElse(dbpediaTopic, 0.0) + topicScore + boostScoreContext
         if (topicVectors(dbpediaTopic).contains(tokenType)){
           numberOfTokensInCommon(dbpediaTopic) = numberOfTokensInCommon.getOrElse(dbpediaTopic, 0.0) + 1.0
+          val currentMatchedTokenTopics = matchedTokensToMatchedTopics.getOrElse(tokenType, new mutable.ListBuffer[DBpediaResource]())
+          currentMatchedTokenTopics += dbpediaTopic
+          matchedTokensToMatchedTopics(tokenType) = currentMatchedTokenTopics
         }
        }
     }
@@ -144,6 +150,14 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
     }
 
+    println("matched token->topics")
+    for( (token,topics)<- matchedTokensToMatchedTopics){
+        println(token.toString)
+        for(topic<-topics){
+          println("\t"+topic.uri)
+        }
+    }
+
 
     //minmaxNorm
     var maxValue = -100.0
@@ -158,7 +172,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
         maxValue = firstScore(dbpediaTopic)
     }
 
-    val topScore = (maxValue + 1.0)/2.0
+    val topScore = (maxValue + 2.0)/3.0
     firstScore.keys foreach{ dbpediaTopic: DBpediaResource =>
       firstScore(dbpediaTopic) = ((firstScore(dbpediaTopic) - minValue) / (maxValue-minValue)) * (topScore-0.1) + 0.1
     }
