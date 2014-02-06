@@ -55,6 +55,6 @@ trait Relevance {
 
 
 
-  def calculateRelevance(listOfResourceOcurrence:java.util.List[DBpediaResourceOccurrence], allText:Text):Map[DBpediaResource,Double]
+  def calculateRelevance(listOfResourceOcurrence:java.util.List[DBpediaResourceOccurrence], allText:Text):java.util.Map[DBpediaResource,java.lang.Double]
   //def calculateRelevance(listOfResourceOcurrence:List[DBpediaResourceOccurrence]):Map[DBpediaResourceOccurrence,Double]
 }

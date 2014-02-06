@@ -120,7 +120,7 @@ public class SpotlightInterface {
         return spots;
     }
 
-    public Map<DBpediaResourceOccurrence,Double> getRelevances(List<DBpediaResourceOccurrence> listOfResourceOcurrence){
+    public List<DBpediaResourceOccurrence>  getRelevances(List<DBpediaResourceOccurrence> listOfResourceOcurrence){
         System.out.println("about to call get relevance from the singleton");
         Text allText = listOfResourceOcurrence.get(0).context();
         if(Server.getTokenizer() != null){
@@ -128,9 +128,12 @@ public class SpotlightInterface {
             Server.getTokenizer().tokenizeMaybe(allText);
         }
 
-        Server.getRelevance().calculateRelevance(listOfResourceOcurrence, allText);
-        Map<DBpediaResourceOccurrence, Double> map = new HashMap<DBpediaResourceOccurrence, Double>();
-        return map;
+        Map<DBpediaResource, Double> relevanceScores = Server.getRelevance().calculateRelevance(listOfResourceOcurrence, allText);
+        for(DBpediaResourceOccurrence resourceOccurrence : listOfResourceOcurrence){
+            resourceOccurrence.setRelevanceScore(relevanceScores.get(resourceOccurrence.resource()));
+        }
+
+        return listOfResourceOcurrence;
     }
 
     /**
@@ -176,7 +179,7 @@ public class SpotlightInterface {
         occList = filter.accept(new FilterOccsImpl() ,occList);
 
         System.out.println("calling.. relevances!");
-        getRelevances(occList);
+        occList = getRelevances(occList);
 
 
         if (LOG.isDebugEnabled()) {
