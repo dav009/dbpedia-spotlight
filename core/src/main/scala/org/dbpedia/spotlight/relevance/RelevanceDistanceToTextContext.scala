@@ -119,7 +119,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
     val firstScore = mutable.HashMap[DBpediaResource, Double]()
 
     topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
-      if (numberOfTokensInCommon(dbpediaTopic)>0){
+      if (numberOfTokensInCommon.getOrElse(dbpediaTopic,0)>0){
         firstScore(dbpediaTopic) = scores(dbpediaTopic)
         scores(dbpediaTopic) = scores(dbpediaTopic) / numberOfTokensInCommon(dbpediaTopic)
       }
