@@ -4,6 +4,7 @@ import org.dbpedia.spotlight.model._
 import scala.collection.mutable.ListBuffer
 import org.dbpedia.spotlight.db.model.ContextStore
 import scala.collection.JavaConversions._
+import scala.collection.mutable
 
 /**
  * Created by dav009 on 31/01/2014.
@@ -11,46 +12,48 @@ import scala.collection.JavaConversions._
 trait Relevance {
 
 
-  // gets the stems of the tokesn and generate a frequency table which then is normalized and transformed
-  //into a vector
+  /*
+  * Gets the tokens of a text, count the frequency of the stems found in them
+  * prunes the frequency table up to the 100most common items
+  * normalize the frequency table
+  * returns a Map[TokenType, dobule]
+  * */
   def getAllTextContextVector(textContext:List[Token]):Map[TokenType,Double]={
-    val counts:Map[TokenType, Int]= Map[TokenType, Int]()
+
     var tokenCounts:Map[TokenType,Int] = textContext.groupBy(_.tokenType).mapValues(_.size)
 
+    //removing uninteresting tokens
     if  (tokenCounts.contains(TokenType.UNKNOWN))
       tokenCounts = tokenCounts - TokenType.UNKNOWN
 
     if  (tokenCounts.contains(TokenType.STOPWORD))
       tokenCounts = tokenCounts - TokenType.STOPWORD
 
+    // cut the vector of the text only allowing the tokens with highest counts
+    val prunedVector = tokenCounts.toSeq.sortBy(_._2).reverse.slice(0,100).toMap
 
-    val maxCountSubContext = tokenCounts.toSeq.sortBy(_._2).reverse.slice(0,100)
-
-    var prunedVector =   Map[TokenType, Int]()
-    for ( (token, counts) <-maxCountSubContext){
-      prunedVector += (token -> counts)
-    }
-
-    var normalizedTokenVector:Map[TokenType,Double]= Map[TokenType,Double]()
+    // Normalizing the pruned Vector
+    val normalizedVector:mutable.Map[TokenType,Double]= mutable.Map[TokenType,Double]()
     val totalCounts = prunedVector.values.toList.sum
-    for (tokenType<- prunedVector.keys){
-      val normalizedValue = prunedVector.get(tokenType).get / totalCounts.toDouble
-      normalizedTokenVector += (tokenType -> normalizedValue)
-      println(tokenType.toString)
-      println("\t"+normalizedValue)
+
+    for( (token, counts) <- prunedVector){
+      val normalizedCount = counts / totalCounts.toDouble
+      normalizedVector(token) = normalizedCount
     }
 
-   return normalizedTokenVector
+   return normalizedVector.toMap
   }
 
-  //given a list of dbpedia resources it returns a map:dbpediaResoruce -> freqiuecyTable of TokenTypes
-  def getContextCounts(contextStore:ContextStore, listOfResourceOcurrence:List[DBpediaResourceOccurrence]):Map[DBpediaResource,Map[TokenType, Int]] ={
-    var contextCounts = Map[DBpediaResource,Map[TokenType, Int]]()
-    for(resourceOcurrence<-listOfResourceOcurrence){
-      val currentCounts = contextStore.getContextCounts(resourceOcurrence.resource).toMap
-      contextCounts += (resourceOcurrence.resource -> currentCounts)
+  /*
+  * Given a list of DbpediaTopics, it returns their contextVectors
+  * */
+  def getContextCounts(contextStore:ContextStore, listOfDbpediaResources:Iterable[DBpediaResource]):Map[DBpediaResource,Map[TokenType, Int]] ={
+    val contextCounts = mutable.Map[DBpediaResource,Map[TokenType, Int]]()
+    for(dbpediaResource<-listOfDbpediaResources){
+      val currentCounts = contextStore.getContextCounts(dbpediaResource).toMap
+      contextCounts(dbpediaResource) = currentCounts
     }
-    return contextCounts
+    return contextCounts.toMap
   }
 
 

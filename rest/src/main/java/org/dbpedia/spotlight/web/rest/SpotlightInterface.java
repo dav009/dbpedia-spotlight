@@ -178,7 +178,6 @@ public class SpotlightInterface {
         FilterElement filter = new OccsFilter(confidence, support, ontologyTypesString, sparqlQuery, blacklist, coreferenceResolution, Server.getSimilarityThresholds(), Server.getSparqlExecute());
         occList = filter.accept(new FilterOccsImpl() ,occList);
 
-        System.out.println("calling.. relevances!");
         occList = getRelevances(occList);
 
 
