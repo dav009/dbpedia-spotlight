@@ -84,7 +84,7 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
       topicVectors.keys foreach { dbpediaTopic: DBpediaResource =>
         val topicScore =  topicVectors(dbpediaTopic).getOrElse(tokenType,0.0)
         val boostScoreContext =  topicScore * contextVector.getOrElse(tokenType,0.0)
-        val boostCommonTokenAmongTopics = topicScore *  icfMap.getOrElse(tokenType,0.0)
+        val boostCommonTokenAmongTopics = contextVector.getOrElse(tokenType,0.0) *  icfMap.getOrElse(tokenType,0.0)
         scores(dbpediaTopic) =  scores.getOrElse(dbpediaTopic, 0.0) + topicScore + boostScoreContext + boostCommonTokenAmongTopics
         if (topicVectors(dbpediaTopic).contains(tokenType)){
           numberOfTokensInCommon(dbpediaTopic) = numberOfTokensInCommon.getOrElse(dbpediaTopic, 0.0) + 1.0
