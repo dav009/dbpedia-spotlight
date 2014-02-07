@@ -107,9 +107,9 @@ class RelevanceDistanceToTextContext(val contextStore:ContextStore)  extends Rel
 
 
     //Boost based on the number of times a topic is spotted in the text
-    val maxTopicFrequency:Int= topicFrequencyInText.values.map(_.toInt).max
+    val sumOfTopicFrequencys:Int= topicFrequencyInText.values.map(_.toInt).sum
     scores.keys foreach{ dbpediaTopic: DBpediaResource =>
-      val boostByCounts =  (1 -scores(dbpediaTopic))*(topicFrequencyInText(dbpediaTopic)/maxTopicFrequency.toDouble)
+      val boostByCounts =  (1 -scores(dbpediaTopic))*(topicFrequencyInText(dbpediaTopic)/sumOfTopicFrequencys.toDouble)
       scores(dbpediaTopic) = scores(dbpediaTopic) + boostByCounts
     }
 
