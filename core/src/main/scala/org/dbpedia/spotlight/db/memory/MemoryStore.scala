@@ -27,6 +27,7 @@ import scala.Some
 @SerialVersionUID(1001001)
 abstract class MemoryStore extends Serializable {
 
+  @transient
   var quantizedCountStore: MemoryQuantizedCountStore = null
 
   def qc(quantizedCount: scala.Short): Int = quantizedCountStore.getCount(quantizedCount)
