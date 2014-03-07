@@ -197,6 +197,8 @@ object MemoryStore {
   def dump(store: MemoryStore, out: File) {
     val kryo = kryos.get(store.getClass.getSimpleName).get
 
+    store.quantizedCountStore = null
+
     SpotlightLog.info(this.getClass, "Writing %s...".format(store.getClass.getSimpleName))
     val output = new Output(new FileOutputStream(out))
     kryo.writeClassAndObject(output, store)
