@@ -115,7 +115,12 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
         case (ngram: Seq[String], id: Int) if(ngram.size > 1) => {
           getAllNgrams(ngram).foreach{ subngram: Seq[String] =>
             sfId.get(subngram.mkString(" ")) match {
-              case Some(subID) if(totalCountForID(subID) > 0 && totalCountForID(id) > 0) => totalCountForID(subID) = (totalCountForID(subID) - (1.25 * annotatedCountForID(id))).toInt
+              case Some(subID) if(totalCountForID(subID) > 0 && totalCountForID(id) > 0) =>
+                                               {
+                                                   val minTotalCountForSubSf = (annotatedCountForID(subID) / 0.9).toInt // Min TotalCount such that the prob = 0.9
+                                                   val newTotalCountForSubId = (totalCountForID(subID) - (1.25 * annotatedCountForID(id))).toInt
+                                                   totalCountForID(subID) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId)
+                                               }
               case _ =>
             }
           }
