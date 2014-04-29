@@ -88,6 +88,9 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
       //Get all sfs as ngrams in increasing order by their length in tokens
       val sfId = mutable.HashMap[String, Int]()
 
+      val subSfToSuperSf = mutable.HashMap[Int, mutable.ArrayBuffer[Int]]()
+      var maxNumberOfSuperSf:Int = 0
+
       //Here be dragons:
       // Correct the counts for sf that are parts of large surface forms:
       // Careful:
@@ -115,17 +118,43 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
         case (ngram: Seq[String], id: Int) if(ngram.size > 1) => {
           getAllNgrams(ngram).foreach{ subngram: Seq[String] =>
             sfId.get(subngram.mkString(" ")) match {
-              case Some(subID) if(totalCountForID(subID) > 0 && totalCountForID(id) > 0) =>
-                                               {
-                                                   val minTotalCountForSubSf = (annotatedCountForID(subID) / 0.9).toInt // Min TotalCount such that the prob = 0.9
-                                                   val newTotalCountForSubId = (totalCountForID(subID) - (1.25 * annotatedCountForID(id))).toInt
-                                                   totalCountForID(subID) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId)
-                                               }
+              case Some(subID) if(totalCountForID(subID) > 0 && totalCountForID(id) > 0) => {
+                      val currentSuperSf = subSfToSuperSf.getOrElse(subID, mutable.ArrayBuffer[Int](0, 0))
+                      // sum of annotated counts
+                      currentSuperSf(0) = currentSuperSf(0) + annotatedCountForID(id)
+
+                      // total number of superSfs
+                       currentSuperSf(1) = currentSuperSf(1) + 1
+
+                      subSfToSuperSf.put(subID, currentSuperSf )
+
+                      maxNumberOfSuperSf = math.max(currentSuperSf(1), maxNumberOfSuperSf)
+                    }
+
+
               case _ =>
             }
           }
         }
         case _ =>
+      }
+
+      subSfToSuperSf.map{
+         case(subSfId:Int, statsForSubSf:mutable.ArrayBuffer[Int]) => {
+
+           // genealProb = #ofSuperSfs / maxNumberOfSuperSfs
+           val generalSfProbability = (1 - (statsForSubSf(1)/ maxNumberOfSuperSf.toDouble))
+
+           val minTotalCountForSubSf = (annotatedCountForID(subSfId) / 0.9).toInt // Min TotalCount such that the prob = 0.9
+
+           val sumOfAnnotatedCounts = statsForSubSf(1)
+
+           val newTotalCountForSubId = (totalCountForID(subSfId) - (generalSfProbability * sumOfAnnotatedCounts)).toInt
+
+           totalCountForID(subSfId) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId)
+
+         }
+
       }
 
     }
