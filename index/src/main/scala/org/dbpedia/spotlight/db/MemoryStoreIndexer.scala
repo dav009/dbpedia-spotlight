@@ -139,7 +139,7 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
         case _ =>
       }
 
-      subSfToSuperSf.map{
+      subSfToSuperSf.foreach{
          case(subSfId:Int, statsForSubSf:mutable.ArrayBuffer[Int]) => {
 
            // genealProb = #ofSuperSfs / maxNumberOfSuperSfs
@@ -153,7 +153,7 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
 
                val newTotalCountForSubId = (totalCountForID(subSfId) - (generalSfProbability * sumOfAnnotatedCounts)).toInt
 
-               totalCountForID(subSfId) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId)
+               totalCountForID(subSfId) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId).toInt
 
           }
 
