@@ -89,7 +89,7 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
       val sfId = mutable.HashMap[String, Int]()
 
       val subSfToSuperSf = mutable.HashMap[Int, mutable.ArrayBuffer[Int]]()
-      var maxNumberOfSuperSf:Int = 0
+      var maxNumberOfSuperSf:Int = 3879
 
       //Here be dragons:
       // Correct the counts for sf that are parts of large surface forms:
@@ -121,14 +121,14 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
               case Some(subID) if(totalCountForID(subID) > 0 && totalCountForID(id) > 0) => {
                       val currentSuperSf = subSfToSuperSf.getOrElse(subID, mutable.ArrayBuffer[Int](0, 0))
                       // sum of annotated counts
-                      currentSuperSf(0) = currentSuperSf(0) + annotatedCountForID(id)
+                      currentSuperSf(0) = currentSuperSf(0) + math.abs(annotatedCountForID(id))
 
                       // total number of superSfs
                        currentSuperSf(1) = currentSuperSf(1) + 1
 
                       subSfToSuperSf.put(subID, currentSuperSf )
 
-                      maxNumberOfSuperSf = math.max(currentSuperSf(1), maxNumberOfSuperSf)
+                      //maxNumberOfSuperSf = math.max(currentSuperSf(1), maxNumberOfSuperSf)
                     }
 
 
@@ -145,13 +145,17 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
            // genealProb = #ofSuperSfs / maxNumberOfSuperSfs
            val generalSfProbability = (1 - (statsForSubSf(1)/ maxNumberOfSuperSf.toDouble))
 
-           val minTotalCountForSubSf = (annotatedCountForID(subSfId) / 0.9).toInt // Min TotalCount such that the prob = 0.9
+           if(math.abs(generalSfProbability)==generalSfProbability){
 
-           val sumOfAnnotatedCounts = statsForSubSf(1)
+               val minTotalCountForSubSf = (annotatedCountForID(subSfId) / 0.9).toInt // Min TotalCount such that the prob = 0.9
 
-           val newTotalCountForSubId = (totalCountForID(subSfId) - (generalSfProbability * sumOfAnnotatedCounts)).toInt
+               val sumOfAnnotatedCounts = statsForSubSf(0)
 
-           totalCountForID(subSfId) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId)
+               val newTotalCountForSubId = (totalCountForID(subSfId) - (generalSfProbability * sumOfAnnotatedCounts)).toInt
+
+               totalCountForID(subSfId) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId)
+
+          }
 
          }
 
