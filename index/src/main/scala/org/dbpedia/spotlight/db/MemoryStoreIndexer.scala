@@ -153,7 +153,19 @@ class MemoryStoreIndexer(val baseDir: File, val quantizedCountStore: MemoryQuant
 
                val newTotalCountForSubId = (totalCountForID(subSfId) - (generalSfProbability * sumOfAnnotatedCounts)).toInt
 
+
+               val oldProbability = annotatedCountForID(subSfId)/ totalCountForID(subSfId).toDouble
                totalCountForID(subSfId) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId).toInt
+
+                val newProbability = annotatedCountForID(subSfId)/ totalCountForID(subSfId).toDouble
+
+
+
+               if(newProbability<0.5  && newProbability/oldProbability < 2.5 ){
+                 val furtherDiscount = 1.25 * (generalSfProbability * sumOfAnnotatedCounts)
+                 val newTotalCountForSubId2 = (totalCountForID(subSfId) - (generalSfProbability * sumOfAnnotatedCounts)).toInt
+                 totalCountForID(subSfId) = scala.math.max( minTotalCountForSubSf,  newTotalCountForSubId2).toInt
+               }
 
           }
 

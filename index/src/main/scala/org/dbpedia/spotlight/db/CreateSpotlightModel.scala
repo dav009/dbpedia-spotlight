@@ -215,16 +215,16 @@ object CreateSpotlightModel {
 
     val tokenStore = MemoryStore.loadTokenTypeStore(new FileInputStream(new File(modelDataFolder, "tokens.mem")))
 
-   // memoryIndexer.createContextStore(resStore.size)
-   // memoryIndexer.addTokenOccurrences(
-    //  TokenOccurrenceSource.fromPigFile(
-     //   new File(rawDataFolder, "tokenCounts"),
-     //   tokenStore,
-     //   wikipediaToDBpediaClosure,
-      //  resStore,
-      //  minimumContextCounts(lang)
-     // )
-   // )
+   memoryIndexer.createContextStore(resStore.size)
+   memoryIndexer.addTokenOccurrences(
+   TokenOccurrenceSource.fromPigFile(
+       new File(rawDataFolder, "tokenCounts"),
+        tokenStore,
+        wikipediaToDBpediaClosure,
+        resStore,
+        minimumContextCounts(lang)
+      )
+    )
     memoryIndexer.writeTokenOccurrences()
     memoryIndexer.writeQuantizedCounts()
 
